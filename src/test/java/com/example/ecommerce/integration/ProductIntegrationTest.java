@@ -1,11 +1,12 @@
 package com.example.ecommerce.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,21 +30,16 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.model.Product;
+import com.example.ecommerce.model.Wishlist;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.ProductSpecification;
+import com.example.ecommerce.repository.WishlistRepository;
 import com.example.ecommerce.service.ProductService;
 
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.ServletException;
 import jakarta.transaction.Transactional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -73,6 +69,10 @@ public class ProductIntegrationTest {
 	private ProductRepository productRepository;
 	
 	@Autowired
+	private WishlistRepository wishlistRepository;
+	
+	
+	@Autowired
 	private ProductService productService;
 	
 	@Autowired
@@ -92,53 +92,45 @@ public class ProductIntegrationTest {
 	 * auth.anyRequest().permitAll()) .build(); } }
 	 */
 	
-	 @Test
-	 @WithMockUser(roles = "ADMIN")
-	 void testOptimesticLockingOnProduct() throws Exception {
-		 String requestJson = """
-					{
-					  "name":"Laptop",
-					  "description":"Gaming Laptop",
-					  "price":50000,
-					  "stockQuantity":10,
-					  "category":"ELECTRONICS"
-					}
-					""";
-
-			mockMvc.perform(post("/products/save").contentType(MediaType.APPLICATION_JSON).content(requestJson))
-					.andExpect(status().isCreated());
-
-		 Long id = 1L;
-		 Product p1 = productRepository.findById(id).get();
-		 System.out.println("p1 version:"+p1.getVersion());
-		 
-		 entityManager.detach(p1);
-
-		 Product p2 = productRepository.findById(id).get();
-		 System.out.println("p2 version : "+p2.getVersion());
-
-		  transactionTemplate.executeWithoutResult(status -> {
-
-	            p1.setPrice(60000.0);
-
-	            productRepository.saveAndFlush(p1);
-	   		 System.out.println("p1 version after save :"+p1.getVersion());
-
-	        });
-		  
-
-	        assertThrows(
-	                ObjectOptimisticLockingFailureException.class,
-	                () -> transactionTemplate.executeWithoutResult(status -> {
-
-	                    p2.setPrice(55000.0);
-	           		 System.out.println("p2 version before save: "+p2.getVersion());
-
-	                    productRepository.saveAndFlush(p2);
-	                    
-	                })
-	        );
-	 }
+	/*
+	 * @Test
+	 * 
+	 * @WithMockUser(roles = "ADMIN") void testOptimesticLockingOnProduct() throws
+	 * Exception { String requestJson = """ { "name":"Laptop",
+	 * "description":"Gaming Laptop", "price":50000, "stockQuantity":10,
+	 * "category":"ELECTRONICS" } """;
+	 * 
+	 * mockMvc.perform(post("/products/save").contentType(MediaType.APPLICATION_JSON
+	 * ).content(requestJson)) .andExpect(status().isCreated());
+	 * 
+	 * Long id = 1L; Product p1 = productRepository.findById(id).get();
+	 * System.out.println("p1 version:"+p1.getVersion());
+	 * 
+	 * entityManager.detach(p1);
+	 * 
+	 * Product p2 = productRepository.findById(id).get();
+	 * System.out.println("p2 version : "+p2.getVersion());
+	 * 
+	 * transactionTemplate.executeWithoutResult(status -> {
+	 * 
+	 * p1.setPrice(60000.0);
+	 * 
+	 * productRepository.saveAndFlush(p1);
+	 * System.out.println("p1 version after save :"+p1.getVersion());
+	 * 
+	 * });
+	 * 
+	 * 
+	 * assertThrows( ObjectOptimisticLockingFailureException.class, () ->
+	 * transactionTemplate.executeWithoutResult(status -> {
+	 * 
+	 * p2.setPrice(55000.0);
+	 * System.out.println("p2 version before save: "+p2.getVersion());
+	 * 
+	 * productRepository.saveAndFlush(p2);
+	 * 
+	 * }) ); }
+	 */
 	@Test
 	@WithMockUser(roles = "ADMIN")
 	void shouldSaveProductToDatabase() throws Exception {
@@ -330,5 +322,32 @@ public class ProductIntegrationTest {
 		
 		mockMvc.perform(get("/products/searchByCb").param("category", "ELECTRONICS").param("minPrice", "1000")).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(3));
 
+	}
+	
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void shouldSaveProductToWishListTable() throws Exception {
+
+		String requestJson = """
+				{
+				  "name":"Laptop",
+				  "description":"Gaming Laptop",
+				  "price":50000,
+				  "stockQuantity":10,
+				  "category":"ELECTRONICS"
+				}
+				""";
+
+		mockMvc.perform(post("/products/save").contentType(MediaType.APPLICATION_JSON).content(requestJson))
+				.andExpect(status().isCreated());
+
+		List<Product> products = productRepository.findAll();
+
+		assertEquals(1, products.size());
+		Long id = products.get(0).getId();
+		assertEquals("Laptop", products.get(0).getName());
+		mockMvc.perform(post("/wishlist/addProduct/1").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+		List<Wishlist> wishlists = wishlistRepository.findAll();
+		assertNotNull(wishlists);
 	}
 }

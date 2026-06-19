@@ -6,6 +6,25 @@ The project provides secure JWT-based authentication, user management, product m
 
 ---
 
+## Architecture
+
+Client
+  ↓
+Spring Boot REST API
+  ↓
+Spring Security + JWT
+  ↓
+Service Layer
+  ↓
+JPA/Hibernate
+  ↓
+PostgreSQL
+
+Redis → Caching Layer
+Flyway → Database Versioning
+Docker → Containerization
+
+
 ## Tech Stack
 
 ### Backend

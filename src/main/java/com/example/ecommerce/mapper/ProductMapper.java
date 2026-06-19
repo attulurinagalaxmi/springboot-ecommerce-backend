@@ -11,7 +11,6 @@ import com.example.ecommerce.model.Product;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 	
-	@Mapping(target = "category", ignore = true)
 	ProductResponseDTO toDTO(Product product);
 	
 	@Mapping(target = "createdAt", ignore = true)

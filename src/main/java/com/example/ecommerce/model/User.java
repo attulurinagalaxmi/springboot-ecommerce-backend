@@ -48,7 +48,7 @@ public class User implements UserDetails {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch= FetchType.LAZY)
 	private List<Order> orders;
-
+	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 
