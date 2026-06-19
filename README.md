@@ -71,6 +71,7 @@ docker compose up -d
 - Role Based Authorization
 - Product Management
 - Order Management
+- Wishlist Management
 - Dynamic Search using Specifications
 - Criteria API Queries
 - Pagination & Sorting
@@ -112,6 +113,12 @@ docker compose up -d
 * View My Orders
 * Admin View of All Orders
 
+### Wishlist Management
+
+* Add Product to Wishlist
+* Remove Product from Wishlist
+* View all user added products from wishlist
+
 ### Infrastructure
 
 * Redis Cache
@@ -132,10 +139,17 @@ mvn spring-boot:run
 ## Running Using Docker Compose
 
 ```bash
+docker compose down
+```
+```bash
+docker build -t ecommerce-app .
+```
+```bash
 docker compose up -d
 ```
-
----
+```
+docker logs -f ecommerce-app
+```
 
 ## API Documentation
 
