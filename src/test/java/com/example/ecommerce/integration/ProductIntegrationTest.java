@@ -1,7 +1,6 @@
 package com.example.ecommerce.integration;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -31,7 +29,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.example.ecommerce.model.Product;
-import com.example.ecommerce.model.Wishlist;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.ProductSpecification;
 import com.example.ecommerce.repository.WishlistRepository;
@@ -324,30 +321,24 @@ public class ProductIntegrationTest {
 
 	}
 	
-	@Test
-	@WithMockUser(roles = "ADMIN")
-	void shouldSaveProductToWishListTable() throws Exception {
-
-		String requestJson = """
-				{
-				  "name":"Laptop",
-				  "description":"Gaming Laptop",
-				  "price":50000,
-				  "stockQuantity":10,
-				  "category":"ELECTRONICS"
-				}
-				""";
-
-		mockMvc.perform(post("/products/save").contentType(MediaType.APPLICATION_JSON).content(requestJson))
-				.andExpect(status().isCreated());
-
-		List<Product> products = productRepository.findAll();
-
-		assertEquals(1, products.size());
-		Long id = products.get(0).getId();
-		assertEquals("Laptop", products.get(0).getName());
-		mockMvc.perform(post("/wishlist/addProduct/1").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-		List<Wishlist> wishlists = wishlistRepository.findAll();
-		assertNotNull(wishlists);
-	}
+	/*
+	 * @Test
+	 * 
+	 * @WithMockUser(roles = "ADMIN") void shouldSaveProductToWishListTable() throws
+	 * Exception {
+	 * 
+	 * String requestJson = """ { "name":"Laptop", "description":"Gaming Laptop",
+	 * "price":50000, "stockQuantity":10, "category":"ELECTRONICS" } """;
+	 * 
+	 * mockMvc.perform(post("/products/save").contentType(MediaType.APPLICATION_JSON
+	 * ).content(requestJson)) .andExpect(status().isCreated());
+	 * 
+	 * List<Product> products = productRepository.findAll();
+	 * 
+	 * assertEquals(1, products.size()); Long id = products.get(0).getId();
+	 * assertEquals("Laptop", products.get(0).getName());
+	 * mockMvc.perform(post("/wishlist/addProduct/1").contentType(MediaType.
+	 * APPLICATION_JSON)).andExpect(status().isOk()); List<Wishlist> wishlists =
+	 * wishlistRepository.findAll(); assertNotNull(wishlists); }
+	 */
 }

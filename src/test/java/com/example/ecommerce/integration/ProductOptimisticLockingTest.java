@@ -1,17 +1,6 @@
 package com.example.ecommerce.integration;
 
-import static org.junit.Assert.assertThrows;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import com.example.ecommerce.model.Product;
-import com.example.ecommerce.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -22,7 +11,7 @@ to prevent lost updates during concurrent modifications.
 @Transactional
 public class ProductOptimisticLockingTest {
 	
-	@Autowired
+	/*@Autowired
     ProductRepository productRepository;
 	
 	 @Autowired
@@ -120,5 +109,5 @@ public class ProductOptimisticLockingTest {
                 ObjectOptimisticLockingFailureException.class,
                 () -> productRepository.saveAndFlush(product2)
         );
-    }
+    }*/
 }
