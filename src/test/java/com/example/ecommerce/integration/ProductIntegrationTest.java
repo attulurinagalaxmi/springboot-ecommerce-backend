@@ -1,6 +1,7 @@
 package com.example.ecommerce.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,7 +29,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.example.ecommerce.model.AuditLog;
 import com.example.ecommerce.model.Product;
+import com.example.ecommerce.repository.AuditLogRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.ProductSpecification;
 import com.example.ecommerce.repository.WishlistRepository;
@@ -77,6 +80,9 @@ public class ProductIntegrationTest {
 	
 	@Autowired
     TransactionTemplate transactionTemplate;
+	
+	@Autowired
+	private AuditLogRepository auditLogRepository;
 
 
 	/*
@@ -146,10 +152,16 @@ public class ProductIntegrationTest {
 				.andExpect(status().isCreated());
 
 		List<Product> products = productRepository.findAll();
-
+		
 		assertEquals(1, products.size());
-
 		assertEquals("Laptop", products.get(0).getName());
+		
+		List<AuditLog> auditLogs = auditLogRepository.findAll();
+		assertEquals(1, auditLogs.size());
+		assertEquals("CREATE_PRODUCT", auditLogs.get(0).getAction());
+		System.out.println("username in audit logs"+auditLogs.get(0).getUsername());
+		assertNotNull(auditLogs.get(0).getUsername());
+		
 	}
 
 	@Test

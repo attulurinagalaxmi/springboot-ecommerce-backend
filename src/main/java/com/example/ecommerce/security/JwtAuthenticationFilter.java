@@ -80,6 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}catch (io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.security.SignatureException | io.jsonwebtoken.ExpiredJwtException e) {
 	        // Catch the exception and stop the filter chain right here
+			System.out.println(e.getMessage());
 	        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	        response.setContentType("application/json");
 	        response.getWriter().write("{\"error\": \"Invalid or expired token\"}");

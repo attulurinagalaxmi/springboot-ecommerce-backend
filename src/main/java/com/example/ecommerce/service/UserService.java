@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.ecommerce.dto.CreateUserRequest;
 import com.example.ecommerce.dto.UserResponseDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.model.Role;
 import com.example.ecommerce.model.User;
@@ -63,7 +63,7 @@ public class UserService {
 	public UserResponseDTO getUserByEmail(String email) {
 
 		User user = userRepository.getUserUsingJPQL(email)
-				.orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
 		UserResponseDTO dto = userMapper.toDTO(user);
 
@@ -77,7 +77,7 @@ public class UserService {
 
 	public UserResponseDTO getUserById(Long id) {
 
-		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		UserResponseDTO dto = userMapper.toDTO(user);
 
@@ -86,7 +86,7 @@ public class UserService {
 
 	public UserResponseDTO updateUser(Long id, CreateUserRequest userDTO) {
 
-		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		userMapper.updateUserFromDto(userDTO, user);
 
@@ -99,7 +99,7 @@ public class UserService {
 
 	public String deleteUser(Long id) {
 
-		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		userRepository.delete(user);
 

@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.ecommerce.security.JwtAccessDeniedHandler;
 import com.example.ecommerce.security.JwtAuthenticationEntryPoint;
 import com.example.ecommerce.security.JwtAuthenticationFilter;
+import com.example.ecommerce.security.RateLimitFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +31,8 @@ public class SecurityConfig {
 	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
 	private final JwtAccessDeniedHandler accessDeniedHandler;
+	
+	private final RateLimitFilter  rateLimitFilter;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(
@@ -55,9 +58,13 @@ public class SecurityConfig {
 	                ).permitAll()
 	                .anyRequest().authenticated()
 	        ).addFilterBefore(
-	                jwtAuthenticationFilter,
-	                UsernamePasswordAuthenticationFilter.class
-	        ).exceptionHandling(ex -> ex
+	        	    rateLimitFilter,
+	        	    UsernamePasswordAuthenticationFilter.class
+	        	)
+	        	.addFilterAfter(
+	        	    jwtAuthenticationFilter,
+	        	    RateLimitFilter.class
+	        	).exceptionHandling(ex -> ex
 	        	    .authenticationEntryPoint(authenticationEntryPoint)
 	        	    .accessDeniedHandler(accessDeniedHandler));
 

@@ -17,8 +17,9 @@ import org.springframework.stereotype.Service;
 import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.dto.ProductResponseDTO;
 import com.example.ecommerce.dto.ProductSummaryDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.ProductMapper;
+import com.example.ecommerce.model.Audit;
 import com.example.ecommerce.model.Category;
 import com.example.ecommerce.model.Product;
 import com.example.ecommerce.repository.ProductRepository;
@@ -49,7 +50,7 @@ public class ProductService {
 	public ProductResponseDTO getProductById(Long id) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new UserNotFoundException("Product not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
 		ProductResponseDTO dto = productMapper.toDTO(product);
 
@@ -57,6 +58,7 @@ public class ProductService {
 	}
 
 	@CacheEvict(value = "products", allEntries = true)
+	@Audit(action = "CREATE_PRODUCT")
 	public ProductResponseDTO saveProduct(ProductRequestDTO reqDTO) {
 
 		log.info("Creating product: {}", reqDTO.getName());
@@ -84,10 +86,11 @@ public class ProductService {
 	}
 
 	@CacheEvict(value = "products", allEntries = true)
+	@Audit(action = "UPDATE_PRODUCT")
 	public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productDTO) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new UserNotFoundException("product not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("product not found"));
 
 		productMapper.updateProductFromDto(productDTO, product);
 
@@ -99,10 +102,11 @@ public class ProductService {
 	}
 
 	@CacheEvict(value = "products", allEntries = true)
+	@Audit(action = "DELETE_PRODUCT")
 	public String deleteProduct(Long id) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new UserNotFoundException("product not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("product not found"));
 
 		productRepository.delete(product);
 

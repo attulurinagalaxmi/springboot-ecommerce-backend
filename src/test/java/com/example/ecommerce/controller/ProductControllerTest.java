@@ -39,7 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.dto.ProductResponseDTO;
 import com.example.ecommerce.dto.ProductSummaryDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.security.JwtAccessDeniedHandler;
 import com.example.ecommerce.security.JwtAuthenticationEntryPoint;
 import com.example.ecommerce.security.JwtService;
@@ -228,7 +228,7 @@ public class ProductControllerTest {
 		updateDto.setPrice(50000.0);
 
 		when(productService.updateProduct(eq(nonExistentId), any(ProductRequestDTO.class)))
-				.thenThrow(new UserNotFoundException("Product not found with id: " + nonExistentId));
+				.thenThrow(new ResourceNotFoundException("Product not found with id: " + nonExistentId));
 
 		mockMvc.perform(put("/products/{id}", nonExistentId).contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(updateDto))).andDo(print()).andExpect(status().isNotFound());
@@ -247,7 +247,7 @@ public class ProductControllerTest {
 	void shouldReturnNotFoundWhenDeletingNonExistentProduct() throws Exception {
 		Long nonExistentId = 999L;
 
-		doThrow(new UserNotFoundException("Product not found with id: " + nonExistentId)).when(productService)
+		doThrow(new ResourceNotFoundException("Product not found with id: " + nonExistentId)).when(productService)
 				.deleteProduct(nonExistentId);
 		mockMvc.perform(delete("/products/{id}", nonExistentId)).andDo(print()).andExpect(status().isNotFound());
 	}

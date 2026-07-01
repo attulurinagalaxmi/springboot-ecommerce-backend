@@ -11,8 +11,9 @@ import com.example.ecommerce.dto.OrderItemRequestDTO;
 import com.example.ecommerce.dto.OrderItemResponseDTO;
 import com.example.ecommerce.dto.OrderRequestDTO;
 import com.example.ecommerce.dto.OrderResponseDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.OrderItemMapper;
+import com.example.ecommerce.model.Audit;
 import com.example.ecommerce.model.Order;
 import com.example.ecommerce.model.OrderItem;
 import com.example.ecommerce.model.Product;
@@ -33,12 +34,13 @@ public class OrderService {
 	private final OrderItemMapper orderItemMapper;
 	//private final OrderMapper orderMapper;
 
+	@Audit(action = "CREATE_ORDER")
 	public OrderResponseDTO placeOrder(OrderRequestDTO request) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		String email = authentication.getName();
-		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 		Order order = new Order();
 
 		order.setUser(user);
@@ -50,7 +52,7 @@ public class OrderService {
 		double totalAmount = 0;
 		for (OrderItemRequestDTO itemDTO : request.getItems()) {
 			Product product = productRepository.findById(itemDTO.getProductId())
-					.orElseThrow(() -> new UserNotFoundException("Product not found"));
+					.orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 			if (product.getStockQuantity() < itemDTO.getQuantity()) {
 
 				throw new RuntimeException("Insufficient stock");
@@ -107,7 +109,7 @@ public class OrderService {
 		//Order order = orderRepository.findOrdersWithItemsByIdAndUserEmail(id,email).orElseThrow(() -> new UserNotFoundException("Order not found"));
 		//this is the cleaner alternative for fetch join whoch we mannually mentioned in query .EntityGraph automatically fetches all its relations in one go without even metioning it 
 		//we use @ annotation and mention attributeParams -- what relationships you want to load and that it cleaner code 
-		Order order = orderRepository.findByIdAndUserEmail(id,email).orElseThrow(() -> new UserNotFoundException("Order not found"));
+		Order order = orderRepository.findByIdAndUserEmail(id,email).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 		return convertOrderToOrderDTO(email, order);
 	}
 	private OrderResponseDTO convertOrderToOrderDTO(String email, Order order) {

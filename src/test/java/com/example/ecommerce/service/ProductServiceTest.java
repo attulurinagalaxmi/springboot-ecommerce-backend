@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable;
 import com.example.ecommerce.dto.ProductRequestDTO;
 import com.example.ecommerce.dto.ProductResponseDTO;
 import com.example.ecommerce.dto.ProductSummaryDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.model.Category;
 import com.example.ecommerce.model.Product;
@@ -71,7 +71,7 @@ public class ProductServiceTest {
 	void shouldThrowExceptionWhenProductNotFound() {
 		when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
-		UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
 				() -> productService.getProductById(1L));
 
 		assertEquals("Product not found", exception.getMessage());
@@ -149,7 +149,7 @@ public class ProductServiceTest {
 	@Test
 	void shouldThrowExceptionWhenProductNotFoundOnDetele() {
 		when(productRepository.findById(1L)).thenReturn(Optional.empty());
-		UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
 				() -> productService.deleteProduct(1L));
 		assertEquals("product not found", exception.getMessage());
 		verify(productRepository, never()).delete(any(Product.class));
@@ -193,7 +193,7 @@ public class ProductServiceTest {
 		productDTO.setName("Lenova Laptop");
 		productDTO.setDescription("IT Laptop");
 		when(productRepository.findById(1L)).thenReturn(Optional.empty());
-		UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
 				() -> productService.updateProduct(1L, productDTO));
 		assertEquals("product not found", exception.getMessage());
 		verify(productRepository, never()).save(any(Product.class));

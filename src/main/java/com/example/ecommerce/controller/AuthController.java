@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.ecommerce.dto.AuthRequest;
 import com.example.ecommerce.dto.AuthResponseDTO;
 import com.example.ecommerce.dto.RefreshTokenRequestDTO;
-import com.example.ecommerce.exception.UserNotFoundException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.model.RefreshToken;
 import com.example.ecommerce.model.User;
 import com.example.ecommerce.repository.RefreshTokenRepository;
@@ -49,7 +49,7 @@ public class AuthController {
 
 		RefreshToken refreshTokenEntity = new RefreshToken();
 		User user = userRepository.findByEmail(request.getUsername())
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		refreshTokenEntity.setToken(refreshToken);
 		refreshTokenEntity.setUser(user);

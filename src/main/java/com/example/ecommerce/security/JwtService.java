@@ -3,6 +3,7 @@ package com.example.ecommerce.security;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -29,10 +30,11 @@ public class JwtService {
 	public String generateAccessToken(String username) {
 
 		return Jwts.builder().subject(username)
+				.id(UUID.randomUUID().toString())
 
 				.issuedAt(new Date())
 
-				.expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 1))
+				.expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10))
 
 				.signWith(getSignKey())
 
@@ -42,6 +44,7 @@ public class JwtService {
 	public String generateRefreshToken(String username) {
 
 		return Jwts.builder().subject(username)
+				.id(UUID.randomUUID().toString())
 
 				.issuedAt(new Date())
 
